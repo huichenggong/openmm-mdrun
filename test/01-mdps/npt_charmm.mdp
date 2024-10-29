@@ -8,6 +8,6 @@ gen-vel                 = no
 
 ; All of the nonbonded settings should be included in system
 pcoupltype              = semiisotropic
-tau-p                   = 25 ; frequency in steps, not the same as gmx
+nstpcouple              = 25 ; frequency in steps
 ref-p                   = 1.0
 surface-tension         = 0.0

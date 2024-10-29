@@ -81,21 +81,21 @@ def set_barostat(system, mdp_inputs):
     :return:
     """
     if mdp_inputs.pcoupltype == "isotropic":
-        barostat = openmm.MonteCarloBarostat(mdp_inputs.ref_p[0], mdp_inputs.ref_t, mdp_inputs.tau_p)
+        barostat = openmm.MonteCarloBarostat(mdp_inputs.ref_p[0], mdp_inputs.ref_t, mdp_inputs.nstpcouple)
         system.addForce(barostat)
     elif mdp_inputs.pcoupltype == "membrane":
         barostat = openmm.MonteCarloMembraneBarostat(mdp_inputs.ref_p[0], mdp_inputs.surface_tension,
                                                      mdp_inputs.ref_t,
                                                      openmm.MonteCarloMembraneBarostat.XYIsotropic,
                                                      openmm.MonteCarloMembraneBarostat.ZFree,
-                                                     mdp_inputs.tau_p)
+                                                     mdp_inputs.nstpcouple)
         system.addForce(barostat)
     elif mdp_inputs.pcoupltype == "anisotropic":
         default_pressure = 1.0 * unit.bar
         px_scale = mdp_inputs.ref_p[0] / default_pressure
         py_scale = mdp_inputs.ref_p[1] / default_pressure
         pz_scale = mdp_inputs.ref_p[2] / default_pressure
-        barostat = openmm.MonteCarloAnisotropicBarostat(default_pressure, mdp_inputs.ref_t, px_scale, py_scale, pz_scale, mdp_inputs.tau_p)
+        barostat = openmm.MonteCarloAnisotropicBarostat(default_pressure, mdp_inputs.ref_t, px_scale, py_scale, pz_scale, mdp_inputs.nstpcouple)
         system.addForce(barostat)
     else:
         raise ValueError(f"pcoupltype {mdp_inputs.pcoupltype} is not supported")
@@ -277,6 +277,8 @@ def main():
     elif args.p.endswith(".parm7"):
         prmtop = app.AmberPrmtopFile(args.p)
         topology = prmtop.topology
+    else:
+        raise ValueError(f"Topology file {args.p} is not supported")
 
     # Set restraints
     if mdp_inputs.restraint:
@@ -317,7 +319,7 @@ def main():
         app.CheckpointReporter(args.cpo, mdp_inputs.nstlog, writeState=True))
     logging.debug(f"Set time up reporter")
     sim.reporters.append(
-        TimeUpReporter(time_start, args.maxh, mdp_inputs.nstlog))
+        TimeUpReporter(time_start, args.maxh, mdp_inputs.nstmaxh))
 
     # Run simulation
     if continuation:
@@ -343,6 +345,8 @@ def main():
             logging.info("Simulation finished")
         except StopSimulation:
             logging.info(f"Running time exceeded maxh {args.maxh}. The last step is {sim.currentStep}")
+            sim.saveState(args.cpo)
+            logging.info(f"State saved to {args.cpo}")
     else:
         logging.info(f"No more steps to run")
 

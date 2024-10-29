@@ -6,6 +6,7 @@ class mdp_parser:
     def __init__(self):
         self.integrator = openmm.LangevinIntegrator
         self.dt = 2 * unit.femtosecond
+        self.nstmaxh = 1000                # time up check interval
         self.nsteps = 5000                 # number of step
         self.nstxout_compressed = 1000     # save xtc trajectory every X step, 0 means no saving
         self.nstlog = 1000                 # save log file every X step
@@ -17,7 +18,7 @@ class mdp_parser:
         self.res_fc = 1000                 # restraint force constant, in kJ/mol/nm^2
         self.pcoupltype = None             # can be "None", "isotropic", "semiisotropic/membrane", "anisotropic"
         self.ref_p = 1.0 * unit.bar        #
-        self.tau_p = 25                    # in steps
+        self.nstpcouple = 25               # in steps
         self.surface_tension = 0.0         # in kJ/mol/nm^2
 
     def read(self, input_mdp):
@@ -39,6 +40,7 @@ class mdp_parser:
                     elif inp_val == "LangevinMiddleIntegrator": self.integrator = openmm.LangevinMiddleIntegrator
                     else: raise ValueError(f"{inp_val} is not support in mdp_parser")
                 if input_param == "dt":                 self.dt = float(inp_val) * unit.picosecond
+                if input_param == "nstmaxh":            self.nstmaxh = int(inp_val)
                 if input_param == "nsteps":             self.nsteps = int(inp_val)
                 if input_param == "nstxout_compressed": self.nstxout_compressed = int(inp_val)
                 if input_param == "nstlog":             self.nstlog = int(inp_val)
@@ -60,7 +62,7 @@ class mdp_parser:
                     else:
                         raise ValueError(f"{inp_val} for pcoupltype cannot be understand")
                 if input_param == "ref_p":      self.ref_p = [float(i) for i in inp_val.split()] * unit.bar
-                if input_param == "tau_p":      self.tau_p = int(inp_val)
+                if input_param == "nstpcouple": self.nstpcouple = int(inp_val)
                 if input_param == "surface_tension": self.surface_tension = float(inp_val)
         return self
 
