@@ -7,9 +7,9 @@ class mdp_parser:
         self.integrator = openmm.LangevinIntegrator
         self.dt = 2 * unit.femtosecond
         self.nsteps = 5000                 # number of step
-        self.nstdcd = 1000                 # save dcd trajectory every X step
+        self.nstxout_compressed = 1000     # save xtc trajectory every X step, 0 means no saving
         self.nstlog = 1000                 # save log file every X step
-        self.tau_t = 1.0 * unit.picosecond # time constant for temperature coupling
+        self.tau_t = 1.0 / unit.picosecond # time constant for temperature coupling
         self.ref_t = 298 * unit.kelvin     # reference temperature
         self.gen_vel = False               #
         self.gen_temp = 298 * unit.kelvin  #
@@ -38,12 +38,12 @@ class mdp_parser:
                     if   inp_val == "LangevinIntegrator":       self.integrator = openmm.LangevinIntegrator
                     elif inp_val == "LangevinMiddleIntegrator": self.integrator = openmm.LangevinMiddleIntegrator
                     else: raise ValueError(f"{inp_val} is not support in mdp_parser")
-                if input_param == "dt":         self.dt = float(inp_val) * unit.picosecond
-                if input_param == "nsteps":     self.nsteps = int(inp_val)
-                if input_param == "nstdcd":     self.nstdcd = int(inp_val)
-                if input_param == "nstlog":     self.nstlog = int(inp_val)
-                if input_param == "tau_t":      self.tau_t = float(inp_val) * unit.picosecond
-                if input_param == "ref_t":      self.ref_t = float(inp_val) * unit.kelvin
+                if input_param == "dt":                 self.dt = float(inp_val) * unit.picosecond
+                if input_param == "nsteps":             self.nsteps = int(inp_val)
+                if input_param == "nstxout_compressed": self.nstxout_compressed = int(inp_val)
+                if input_param == "nstlog":             self.nstlog = int(inp_val)
+                if input_param == "tau_t":              self.tau_t = float(inp_val) / unit.picosecond
+                if input_param == "ref_t":              self.ref_t = float(inp_val) * unit.kelvin
                 if input_param == "gen_vel":
                     if   inp_val.lower() == "yes": self.gen_vel = True
                     elif inp_val.lower() == "no":  self.gen_vel = False

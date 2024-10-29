@@ -1,11 +1,11 @@
 dt                      = 0.002
 nsteps                  = 5000 ; 10ps
-nstdcd                  = 0
+nstxout-compressed      = 5000
 nstlog                  = 1000
-tau-t                   = 1.0
-ref-t                   = 310
+tau-t                   = 1.0 ; 1.0 ps-1
+ref-t                   = 300
 gen-vel                 = yes
-gen-temp                = 310
+gen-temp                = 300
 restraint               = on
 res-fc                  = 1000 ; force constant for position restraints, kJ/mol/nm^2
 
