@@ -309,14 +309,14 @@ def main():
     logging.debug(f"Set csv reporter to {args.e}")
     sim.reporters.append(
         app.StateDataReporter(
-            args.e, mdp_inputs.nstlog, step=True, time=True, potentialEnergy=True, temperature=True,
+            args.e, mdp_inputs.nstenergy, step=True, time=True, potentialEnergy=True, temperature=True,
             volume=True, density=True,
             progress=True,
             remainingTime=True, speed=True, totalSteps=mdp_inputs.nsteps, separator='\t,', append=continuation))
 
     logging.debug(f"Set log reporter to {args.g}")
     sim.reporters.append(
-        app.CheckpointReporter(args.cpo, mdp_inputs.nstlog, writeState=True))
+        app.CheckpointReporter(args.cpo, mdp_inputs.nstenergy, writeState=True))
     logging.debug(f"Set time up reporter")
     sim.reporters.append(
         TimeUpReporter(time_start, args.maxh, mdp_inputs.nstmaxh))
