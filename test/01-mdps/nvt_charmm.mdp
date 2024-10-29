@@ -1,0 +1,12 @@
+dt                      = 0.002
+nsteps                  = 5000 ; 10ps
+nstdcd                  = 0
+nstlog                  = 1000
+tau-t                   = 1.0
+ref-t                   = 310
+gen-vel                 = yes
+gen-temp                = 310
+restraint               = on
+res-fc                  = 1000 ; force constant for position restraints, kJ/mol/nm^2
+
+; All of the nonbonded settings should be included in system
