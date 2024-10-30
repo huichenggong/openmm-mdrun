@@ -231,11 +231,20 @@ def main():
     args = parser.parse_args()
     set_output_file_name(args)
 
+    info_list = []
     if args.cpt and (args.t is None):    restart_xml, continuation = args.cpt, True
     elif args.t and (args.cpt is None):  restart_xml, continuation = args.t,   False
     else:
-        raise ValueError("Only one of -t or -cpt should be set")
-    info_list = []
+        if Path(args.cpt).is_file():
+            info_list.append(f"Both -t and -cpt are set, will use -cpt {args.cpt} to continue the simulation.")
+            restart_xml, continuation = args.cpt, True
+        elif Path(args.t).is_file():
+            info_list.append(f"Both -t and -cpt are set. {args.cpt} does not exist. Will use -t {args.t} to restart the simulation.")
+            restart_xml, continuation = args.t, False
+        else:
+            raise FileNotFoundError(f"Neither {args.t} nor {args.cpt} exist")
+
+
     if not continuation:
         for f_name in [args.xtc, args.e, args.g, args.cpo]:
             f_bak = backup_if_exist_gmx(f_name)
