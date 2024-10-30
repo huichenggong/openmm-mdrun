@@ -107,6 +107,7 @@ def set_restraint(system, positions, mdp_inputs, res_index_file):
     :param system: openmm.System, will add force to this system
     :param positions: positions of all atoms
     :param mdp_inputs: mdp_parser object, it should have res_fc
+    :param res_index_file: index file for restraints
     :return: None
     """
     force_con = mdp_inputs.res_fc
@@ -126,6 +127,7 @@ def set_restraint(system, positions, mdp_inputs, res_index_file):
         zpos = positions[atom1].value_in_unit(unit.nanometers)[2]
         if state == 'BB' or state == "SC":  # BackBone and SideChain
             posresPROT.addParticle(atom1, [force_con, xpos, ypos, zpos])
+    logging.info(f"Add {force_con} kj/mol/nm**2 restraint to {posresPROT.getNumParticles()} atoms")
     system.addForce(posresPROT)
 
 class StopSimulation(Exception):

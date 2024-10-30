@@ -25,16 +25,12 @@ class mdp_parser:
         with open(input_mdp) as f:
             lines = f.readlines()
         for line in lines:
-            if line.find(';') >= 0:
-                line = line.split(';')[0]
+            if line.find(';') >= 0: line = line.split(';')[0]
             line = line.strip()
-            segments = line.split('=')
-            input_param = segments[0].lower().strip().replace("-","_")
-            try:
+            if "=" in line:
+                segments = line.split('=')
+                input_param = segments[0].lower().strip().replace("-","_")
                 inp_val = segments[1].strip()
-            except:
-                inp_val = None
-            if inp_val:
                 if input_param == "integrator":
                     if   inp_val == "LangevinIntegrator":       self.integrator = openmm.LangevinIntegrator
                     elif inp_val == "LangevinMiddleIntegrator": self.integrator = openmm.LangevinMiddleIntegrator
@@ -47,12 +43,14 @@ class mdp_parser:
                 if input_param == "tau_t":              self.tau_t = float(inp_val) / unit.picosecond
                 if input_param == "ref_t":              self.ref_t = float(inp_val) * unit.kelvin
                 if input_param == "gen_vel":
-                    if   inp_val.lower() == "yes": self.gen_vel = True
-                    elif inp_val.lower() == "no":  self.gen_vel = False
+                    if   inp_val.lower() in ["yes", "on" ]: self.gen_vel = True
+                    elif inp_val.lower() in ["no",  "off"]:  self.gen_vel = False
+                    else : raise ValueError(f"{inp_val} is not a valid input for gen_vel")
                 if input_param == "gen_temp":   self.gen_temp = float(inp_val) * unit.kelvin
                 if input_param == "restraint":
-                    if   inp_val.lower() == "yes": self.gen_vel = True
-                    elif inp_val.lower() == "no":  self.gen_vel = False
+                    if   inp_val.lower() in ["yes", "on" ]:  self.restraint = True
+                    elif inp_val.lower() in ["no",  "off"]:  self.restraint = False
+                    else : raise ValueError(f"{inp_val} is not a valid input for restraint")
                 if input_param == "res_fc":     self.res_fc = float(inp_val)
                 if input_param == "pcoupltype":
                     if inp_val.lower() in ["isotropic", "membrane", "anisotropic"]:
