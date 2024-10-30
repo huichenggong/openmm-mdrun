@@ -310,7 +310,7 @@ def main():
         sim.context.setTime(0)
         # Set gen_vel
         if mdp_inputs.gen_vel:
-            logging.debug(f"Set random velocities to temperature {mdp_inputs.gen_temp}")
+            logging.info(f"Set random velocities to temperature {mdp_inputs.gen_temp}")
             sim.context.setVelocitiesToTemperature(mdp_inputs.gen_temp)
 
     # Set reporters, if continuation, xtc and csv will be appended
