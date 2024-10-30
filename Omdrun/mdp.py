@@ -57,8 +57,10 @@ class mdp_parser:
                         self.pcoupltype = inp_val.lower()
                     elif inp_val.lower()== "semiisotropic":
                         self.pcoupltype = "membrane"
+                    elif inp_val.lower() == "none":
+                        self.pcoupltype = None
                     else:
-                        raise ValueError(f"{inp_val} for pcoupltype cannot be understand")
+                        raise ValueError(f"{inp_val} is not a valid input for pcoupltype")
                 if input_param == "ref_p":      self.ref_p = [float(i) for i in inp_val.split()] * unit.bar
                 if input_param == "nstpcouple": self.nstpcouple = int(inp_val)
                 if input_param == "surface_tension": self.surface_tension = float(inp_val)
