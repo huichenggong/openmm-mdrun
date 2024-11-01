@@ -42,6 +42,18 @@ def load_sys(sys_file):
             system = openmm.XmlSerializer.deserialize(f.read())
     return system
 
+def load_top(top_file):
+    # Load topology
+    if top_file.endswith(".psf"):
+        psf = app.CharmmPsfFile(top_file)
+        topology = psf.topology
+    elif top_file.endswith(".parm7"):
+        prmtop = app.AmberPrmtopFile(top_file)
+        topology = prmtop.topology
+    else:
+        raise ValueError(f"Topology file {top_file} is not supported")
+    return topology
+
 def set_output_file_name(args):
     """
     Set output file names
@@ -234,6 +246,7 @@ def main():
     set_output_file_name(args)
 
     info_list = []
+    # Determine restart situation, whether to continue or not
     if args.cpt and (args.t is None):    restart_xml, continuation = args.cpt, True
     elif args.t and (args.cpt is None):  restart_xml, continuation = args.t,   False
     else:
@@ -270,26 +283,18 @@ def main():
     mdp_inputs = mdp_parser().read(args.mdp)
     print_inp(args, mdp_inputs)
 
-
     # Load system
+    logging.info(f"Load system from {args.sys}")
     system = load_sys(args.sys)
-    logging.info(f"System loaded from {args.sys}")
     logging.info(f"Number of particles: {system.getNumParticles()}")
 
     # Load state
     with open(restart_xml, 'r') as f:
         s_restart = openmm.XmlSerializer.deserialize(f.read())
 
-
     # Load topology
-    if args.p.endswith(".psf"):
-        psf = app.CharmmPsfFile(args.p, periodicBoxVectors=s_restart.getPeriodicBoxVectors())
-        topology = psf.topology
-    elif args.p.endswith(".parm7"):
-        prmtop = app.AmberPrmtopFile(args.p)
-        topology = prmtop.topology
-    else:
-        raise ValueError(f"Topology file {args.p} is not supported")
+    topology = load_top(args.p)
+    logging.info(f"Load topology from {args.p}")
 
     # Set restraints
     if mdp_inputs.restraint:
@@ -332,20 +337,20 @@ def main():
     sim.reporters.append(
         TimeUpReporter(time_start, args.maxh, mdp_inputs.nstmaxh))
 
-    # Run simulation
+    # How many steps to run?
     if continuation:
         nsteps = mdp_inputs.nsteps - sim.context.getState().getStepCount()
     else:
         nsteps = mdp_inputs.nsteps
 
     # print DEBUG info
-
     for i, f in enumerate(system.getForces()):
         logging.debug(f"Force {i}: {f}")
     logging.debug(f"Time {sim.context.getTime()}")
     logging.debug(f"Step {sim.context.getStepCount()}")
     logging.debug(f"Run further simulation by {nsteps} steps")
 
+    # Run simulation
     if nsteps > 0:
         try:
             sim.step(nsteps)
@@ -353,11 +358,12 @@ def main():
             state = sim.context.getState(getPositions=True)
             with open(args.pdb, 'w') as f:
                 app.PDBFile.writeFile(sim.topology, state.getPositions(), f)
-            logging.info("Simulation finished")
+            logging.info(f"Simulation finished. The final frame is saved to {args.pdb} .")
         except StopSimulation:
             logging.info(f"Running time exceeded maxh {args.maxh}. The last step is {sim.currentStep}")
             sim.saveState(args.cpo)
-            logging.info(f"State saved to {args.cpo}")
+            logging.info(f"The last state is saved to {args.cpo} .")
     else:
         logging.info(f"No more steps to run")
+    logging.info(f"openmm_mdrun finished in {time.time() - time_start:.1f} s")
 
