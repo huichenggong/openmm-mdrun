@@ -7,8 +7,7 @@ from pathlib import Path
 import gzip
 import logging
 
-from openmm import openmm, unit
-from openmm import app
+from openmm import openmm, unit, app
 
 import Omdrun
 from Omdrun.mdp import mdp_parser
@@ -65,6 +64,8 @@ def set_output_file_name(args):
         prefix = args.deffnm
         if args.xtc is None:
             args.xtc = f"{prefix}.xtc"
+        if args.dcd is None:
+            args.dcd = f"{prefix}.dcd"
         if args.cpo is None:
             args.cpo = f"{prefix}.xml"
         if args.e is None:
@@ -76,6 +77,8 @@ def set_output_file_name(args):
     else:
         if args.xtc is None:
             args.xtc = "traj.xtc"
+        if args.dcd is None:
+            args.dcd = "traj.dcd"
         if args.cpo is None:
             args.cpo = "state.xml"
         if args.e is None:
@@ -229,6 +232,8 @@ def main():
                         help="The default filename for all output")
     parser.add_argument("-xtc", metavar="     traj.xtc    ",
                         help="xtc trajectory")
+    parser.add_argument("-dcd", metavar="     traj.dcd    ",
+                        help="dcd trajectory")
     parser.add_argument("-cpo", metavar="   state.xml   ",
                         help="Checkpoint file. Serialized `openmm.State` object")
     parser.add_argument("-e", metavar="     energy.csv  ",
@@ -321,7 +326,11 @@ def main():
     # Set reporters, if continuation, xtc and csv will be appended
     if mdp_inputs.nstxout_compressed > 0:
         logging.debug(f"Set xtc reporter to {args.xtc}")
+        logging.warning(f"app.XTCReporter occasionally fails to write the box size. Please consider using dcd reporter.")
         sim.reporters.append(app.XTCReporter(args.xtc, mdp_inputs.nstxout_compressed, continuation))
+    if mdp_inputs.nstdcd > 0:
+        logging.debug(f"Set dcd reporter to {args.dcd}")
+        sim.reporters.append(app.DCDReporter(args.dcd, mdp_inputs.nstdcd, continuation))
     logging.debug(f"Set csv reporter to {args.e}")
     sim.reporters.append(
         app.StateDataReporter(
@@ -345,10 +354,10 @@ def main():
 
     # print DEBUG info
     for i, f in enumerate(system.getForces()):
-        logging.debug(f"Force {i}: {f}")
-    logging.debug(f"Time {sim.context.getTime()}")
-    logging.debug(f"Step {sim.context.getStepCount()}")
-    logging.debug(f"Run further simulation by {nsteps} steps")
+        logging.info(f"Force {i}: {f}")
+    logging.info(f"Time {sim.context.getTime()}")
+    logging.info(f"Step {sim.context.getStepCount()}")
+    logging.info(f"Run further simulation by {nsteps} steps")
 
     # Run simulation
     if nsteps > 0:
@@ -357,7 +366,7 @@ def main():
             sim.saveState(args.cpo)
             state = sim.context.getState(getPositions=True)
             with open(args.pdb, 'w') as f:
-                app.PDBFile.writeFile(sim.topology, state.getPositions(), f)
+                app.PDBFile.writeFile(sim.topology, state.getPositions(), f, keepIds=True)
             logging.info(f"Simulation finished. The final frame is saved to {args.pdb} .")
         except StopSimulation:
             logging.info(f"Running time exceeded maxh {args.maxh}. The last step is {sim.currentStep}")
