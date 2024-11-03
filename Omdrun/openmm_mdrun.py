@@ -331,20 +331,22 @@ def main():
     if mdp_inputs.nstdcd > 0:
         logging.debug(f"Set dcd reporter to {args.dcd}")
         sim.reporters.append(app.DCDReporter(args.dcd, mdp_inputs.nstdcd, continuation))
-    logging.debug(f"Set csv reporter to {args.e}")
-    sim.reporters.append(
-        app.StateDataReporter(
-            args.e, mdp_inputs.nstenergy, step=True, time=True, potentialEnergy=True, temperature=True,
-            volume=True, density=True,
-            progress=True,
-            remainingTime=True, speed=True, totalSteps=mdp_inputs.nsteps, separator='\t,', append=continuation))
+    logging.info(f"Set csv reporter to {args.e}")
+    if mdp_inputs.nstenergy > 0:
+        sim.reporters.append(
+            app.StateDataReporter(
+                args.e, mdp_inputs.nstenergy, step=True, time=True, potentialEnergy=True, temperature=True,
+                volume=True, density=True,
+                progress=True,
+                remainingTime=True, speed=True, totalSteps=mdp_inputs.nsteps, separator='\t,', append=continuation))
 
-    logging.debug(f"Set log reporter to {args.g}")
-    sim.reporters.append(
-        app.CheckpointReporter(args.cpo, mdp_inputs.nstenergy, writeState=True))
-    logging.debug(f"Set time up reporter")
-    sim.reporters.append(
-        TimeUpReporter(time_start, args.maxh, mdp_inputs.nstmaxh))
+        logging.info(f"Set check point file reporter to {args.cpo}")
+        sim.reporters.append(
+            app.CheckpointReporter(args.cpo, mdp_inputs.nstenergy, writeState=True))
+    logging.info(f"Set time up reporter")
+    if mdp_inputs.nstmaxh > 0:
+        sim.reporters.append(
+            TimeUpReporter(time_start, args.maxh, mdp_inputs.nstmaxh))
 
     # How many steps to run?
     if continuation:
