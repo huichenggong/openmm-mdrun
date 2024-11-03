@@ -42,11 +42,16 @@ def load_sys(sys_file):
     return system
 
 def load_top(top_file):
-    # Load topology
+    """
+    Load topology file. It can be psf(Charmm) or parm7/prmtop(Amber).
+    return: openmm.Topology
+    remember to run topology.setPeriodicBoxVectors if you provide a charmm psf file. If you don't set
+    the box for topology, later trajectory will not have box information.
+    """
     if top_file.endswith(".psf"):
         psf = app.CharmmPsfFile(top_file)
         topology = psf.topology
-    elif top_file.endswith(".parm7"):
+    elif top_file.endswith(".parm7") or top_file.endswith(".prmtop"):
         prmtop = app.AmberPrmtopFile(top_file)
         topology = prmtop.topology
     else:
@@ -299,6 +304,7 @@ def main():
 
     # Load topology
     topology = load_top(args.p)
+    topology.setPeriodicBoxVectors(s_restart.getPeriodicBoxVectors())
     logging.info(f"Load topology from {args.p}")
 
     # Set restraints
@@ -326,7 +332,6 @@ def main():
     # Set reporters, if continuation, xtc and csv will be appended
     if mdp_inputs.nstxout_compressed > 0:
         logging.debug(f"Set xtc reporter to {args.xtc}")
-        logging.warning(f"app.XTCReporter occasionally fails to write the box size. Please consider using dcd reporter.")
         sim.reporters.append(app.XTCReporter(args.xtc, mdp_inputs.nstxout_compressed, continuation))
     if mdp_inputs.nstdcd > 0:
         logging.debug(f"Set dcd reporter to {args.dcd}")
