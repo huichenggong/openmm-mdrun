@@ -9,10 +9,10 @@ class mdp_parser:
         self.nstmaxh = 1000                # time up check interval
         self.nsteps = 5000                 # number of step
         self.ncycle = 0                    # number of cycle
-        self.nstxout_compressed = 0        # save xtc trajectory every X step, 0 means no saving
-        self.nstdcd = 5000                 # save xtc trajectory every X step, 0 means no saving
+        self.nstxout_compressed = 5000     # save xtc trajectory every X step, 0 means no saving
+        self.nstdcd = 0                    # save xtc trajectory every X step, 0 means no saving
         self.nstenergy = 1000              # save csv file every X step
-        self.tau_t = 1.0 / unit.picosecond # time constant for temperature coupling
+        self.tau_t = 1.0 * unit.picosecond # 1/gama, inverse friction constant
         self.ref_t = 298 * unit.kelvin     # reference temperature
         self.gen_vel = False               #
         self.gen_temp = 298 * unit.kelvin  #
@@ -44,7 +44,7 @@ class mdp_parser:
                 if input_param == "nstxout_compressed": self.nstxout_compressed = int(inp_val)
                 if input_param == "nstdcd":             self.nstdcd = int(inp_val)
                 if input_param == "nstenergy":          self.nstenergy = int(inp_val)
-                if input_param == "tau_t":              self.tau_t = float(inp_val) / unit.picosecond
+                if input_param == "tau_t":              self.tau_t = float(inp_val) * unit.picosecond
                 if input_param == "ref_t":              self.ref_t = float(inp_val) * unit.kelvin
                 if input_param == "gen_vel":
                     if   inp_val.lower() in ["yes", "on" ]: self.gen_vel = True

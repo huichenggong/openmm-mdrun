@@ -318,7 +318,7 @@ def main():
         set_barostat(system, mdp_inputs)
 
     # Set context
-    integrator = mdp_inputs.integrator(mdp_inputs.ref_t, mdp_inputs.tau_t, mdp_inputs.dt)
+    integrator = mdp_inputs.integrator(mdp_inputs.ref_t, 1/mdp_inputs.tau_t, mdp_inputs.dt)
     sim = app.Simulation(topology, system, integrator)
     sim.context.setState(s_restart)
     if not continuation:
