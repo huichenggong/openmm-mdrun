@@ -12,7 +12,7 @@ class mdp_parser:
         self.nstxout_compressed = 5000     # save xtc trajectory every X step, 0 means no saving
         self.nstdcd = 0                    # save xtc trajectory every X step, 0 means no saving
         self.nstenergy = 1000              # save csv file every X step
-        self.tau_t = 1.0 * unit.picosecond # 1/gama, inverse friction constant
+        self.tau_t = 2.0 * unit.picosecond # 1/gama, inverse friction constant
         self.ref_t = 298 * unit.kelvin     # reference temperature
         self.gen_vel = False               #
         self.gen_temp = 298 * unit.kelvin  #
