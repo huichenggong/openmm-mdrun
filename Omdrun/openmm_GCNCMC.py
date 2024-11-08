@@ -81,7 +81,7 @@ def main():
     args = parser.parse_args()
 
     if args.debug:
-        logging.basicConfig(level=logging.DEBUG, format='%(message)s')
+        logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
     else:
         logging.basicConfig(level=logging.INFO, format='%(message)s')
     logging.info(f"openmm_mdrun, version {Omdrun.__version__}")
