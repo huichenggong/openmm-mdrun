@@ -22,6 +22,11 @@ class mdp_parser:
         self.ref_p = 1.0 * unit.bar        #
         self.nstpcouple = 25               # in steps
         self.surface_tension = 0.0         # in kJ/mol/nm^2
+        # GCMC
+        self.ex_potential    = -25.48    * unit.kilojoule_per_mole
+        self.standard_volume = 30.345e-3 * unit.nanometer**3
+        self.n_pert_steps = 399            # number of perturbation steps (Hamiltonian switching)
+        self.n_prop_steps_per_pert = 50    # number of propagation steps per perturbation step (constant Hamiltonian, relaxation)
 
     def read(self, input_mdp):
         with open(input_mdp) as f:
@@ -68,6 +73,10 @@ class mdp_parser:
                 if input_param == "ref_p":      self.ref_p = [float(i) for i in inp_val.split()] * unit.bar
                 if input_param == "nstpcouple": self.nstpcouple = int(inp_val)
                 if input_param == "surface_tension": self.surface_tension = float(inp_val)
+                if input_param == "ex_potential"          : self.ex_potential    = float(inp_val) * unit.kilojoule_per_mole
+                if input_param == "standard_volume"       : self.standard_volume = float(inp_val) * unit.nanometer**3
+                if input_param == "n_pert_steps"          : self.n_pert_steps = int(inp_val)
+                if input_param == "n_prop_steps_per_pert" : self.n_prop_steps_per_pert = int(inp_val)
         return self
 
 
