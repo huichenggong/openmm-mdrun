@@ -5,7 +5,7 @@ from openmm import openmm, unit
 class mdp_parser:
     def __init__(self):
         self.integrator = openmm.LangevinIntegrator
-        self.dt = 2 * unit.femtosecond
+        self.dt = 2/1000 * unit.picosecond
         self.nstmaxh = 1000                # time up check interval
         self.nsteps = 5000                 # number of step
         self.ncycle = 0                    # number of cycle

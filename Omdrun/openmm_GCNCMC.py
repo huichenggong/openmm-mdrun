@@ -37,10 +37,9 @@ def check_continuation(args):
         and it does not exist, then it is a fresh start. state file should exist.
     if rst is not provided, then it is a fresh start. state file should exist.
     """
-    if args.rst is not None:
-        if Path(args.rst).is_file():
-            logging.info(f"Load/continue simulation from {args.rst}")
-            return True
+    if args.rst is not None and Path(args.rst).is_file():
+        logging.info(f"Load/continue simulation from {args.rst}")
+        return True
 
     if args.t is not None and Path(args.t).is_file():
         logging.info(f"Arg -rst is not provided. Start a new simulation from {args.t}. Random velocities will be generated.")
@@ -93,7 +92,7 @@ def main():
         rst_in = app.AmberInpcrdFile(args.rst)
         n_moves, n_accepted = read_moves(args.ilog)
     else:
-        rst_in = app.AmberInpcrdFile(args.rst)
+        rst_in = app.AmberInpcrdFile(args.t)
         n_moves, n_accepted = 0, 0
 
     mdp_inputs = mdp_parser().read(args.mdp)
@@ -199,6 +198,7 @@ def main():
     logging.info(f"Number of outside  waters: {len([i for i, s in gcncmc_mover.water_status.items() if s == 2])}")
     logging.info(f"Number of ghost waters   : {len([i for i, s in gcncmc_mover.water_status.items() if s == 0])}")
     logging.info(f"{[i for i, s in gcncmc_mover.water_status.items() if s == 0]}")
+    logging.info(f"The length of the MD step is {mdp_inputs.nsteps * mdp_inputs.dt}")
 
     while gcncmc_mover.n_moves < mdp_inputs.ncycle:
         time_left = args.maxh*3600 - (time.time() - time_start)
