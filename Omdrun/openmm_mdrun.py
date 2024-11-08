@@ -270,7 +270,7 @@ def main():
 
     # Set reporters, if continuation, xtc and csv will be appended
     if mdp_inputs.nstxout_compressed > 0:
-        logging.debug(f"Set xtc reporter to {args.xtc}")
+        logging.info(f"Set xtc reporter to {args.xtc}")
         sim.reporters.append(app.XTCReporter(args.xtc, mdp_inputs.nstxout_compressed, continuation))
     if mdp_inputs.nstdcd > 0:
         logging.debug(f"Set dcd reporter to {args.dcd}")
