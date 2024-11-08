@@ -21,13 +21,14 @@ setup(
     version=get_version("Omdrun/__init__.py"),
     author='Chenggong Hui',
     author_email='chenggong.hui@mpinat.mpg.de',
-    description='A wrapper on openmm for basic mdrun',
+    description='A wrapper on openmm for basic mdrun + GCNCMC',
     packages=find_packages(),
     install_requires=["openmm"],
     python_requires='>=3.7',
     entry_points={
         'console_scripts': [
             'openmm_mdrun=Omdrun.openmm_mdrun:main',
+            'openmm_GCNCMC=Omdrun.openmm_GCNCMC:main',
         ],
     },
     classifiers=['Programming Language :: Python :: 3',],
