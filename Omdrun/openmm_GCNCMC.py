@@ -183,7 +183,11 @@ def main():
             separator='\t,', append=False))
 
     sim.context.setPositions(rst_in.getPositions())
-    sim.context.setVelocities(rst_in.getVelocities())
+    if not continuation and mdp_inputs.gen_vel:
+        logging.info(f"Set random velocities to temperature {mdp_inputs.gen_temp}")
+        sim.context.setVelocitiesToTemperature(mdp_inputs.gen_temp)
+    else:
+        sim.context.setVelocities(rst_in.getVelocities())
     sim.context.setPeriodicBoxVectors(*rst_in.getBoxVectors())
 
     gcncmc_mover.initialise(sim.context, ghosts)
