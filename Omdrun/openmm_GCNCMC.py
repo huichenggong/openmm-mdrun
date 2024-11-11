@@ -5,13 +5,13 @@ from pathlib import Path
 import logging
 import json
 
+import numpy as np
+
 from openmm import openmm, unit, app
 from openmmtools.integrators import BAOABIntegrator, NonequilibriumLangevinIntegrator
 
-try:
-    import grand
-except ImportError:
-    raise ImportError("This script requires grand. Please install it from : https://github.com/essex-lab/grand")
+import grand
+from .sampler import CustomGCNCMCSampler
 
 import Omdrun
 from Omdrun.mdp import mdp_parser
@@ -136,7 +136,7 @@ def main():
 
     integrator = BAOABIntegrator(mdp_inputs.ref_t, 1 / mdp_inputs.tau_t, mdp_inputs.dt)
     # Define the NCMC Sampler
-    gcncmc_mover = grand.samplers.NonequilibriumGCMCSphereSampler(
+    gcncmc_mover = CustomGCNCMCSampler(
         system=system,
         topology=topology,
         temperature=mdp_inputs.ref_t,
@@ -156,8 +156,10 @@ def main():
     )
     if mdp_inputs.pcoupltype == "membrane":
         if args.zfree:
+            logging.info("Membrane barostat with ZFree is added")
             zmode = openmm.MonteCarloMembraneBarostat.ZFree
         else:
+            logging.info("Membrane barostat with ZFix is added")
             zmode = openmm.MonteCarloMembraneBarostat.ZFixed
         barostat = openmm.MonteCarloMembraneBarostat(mdp_inputs.ref_p[0], mdp_inputs.surface_tension,
                                                      mdp_inputs.ref_t,
@@ -165,6 +167,10 @@ def main():
                                                      zmode,
                                                      mdp_inputs.nstpcouple)
         system.addForce(barostat)
+    elif mdp_inputs.pcoupltype == None:
+        logging.info("No pressure coupling is added. This is a μVT simulation.")
+    else:
+        raise ValueError(f"pcoupltype {mdp_inputs.pcoupltype} should not been used.")
 
     # set up the simulation(context), all information will be sent to GPU from here
     sim = app.Simulation(topology, system, gcncmc_mover.compound_integrator)
@@ -202,18 +208,16 @@ def main():
 
     while gcncmc_mover.n_moves < mdp_inputs.ncycle:
         time_left = args.maxh*3600 - (time.time() - time_start)
+        if time_left < 0:
+            logging.info(f"Time limit reached.")
+            break
         logging.info(f"### {time_left // 3600 :.0f} h {time_left/60 % 60 :.1f} min left ################################")
         logging.info(f"Cycle {gcncmc_mover.n_moves}, MD")
         sim.step(mdp_inputs.nsteps) # 500=1ps, 1000=2ps, 5000=10ps, 25000=50ps
         logging.info(f"Cycle {gcncmc_mover.n_moves}, MC")
-        gcncmc_mover.move(sim.context, 1) # insertion and deletion will be randomlly chosen
+        gcncmc_mover.move(sim.context, np.random.randint(2) == 1) # insertion and deletion will be randomlly chosen
         gcncmc_mover.report(sim)
 
-        # check time/maxh
-        time_passed = (time.time() - time_start)
-        if time_passed > args.maxh*3600:
-            logging.info(f"Time limit reached: {time_passed / 3600 :.2f} hours")
-            break
     logging.info(f"Insertion work:")
     for w in gcncmc_mover.insert_works:
         logging.info(f"{w}")
