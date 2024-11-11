@@ -23,7 +23,7 @@ setup(
     author_email='chenggong.hui@mpinat.mpg.de',
     description='A wrapper on openmm for basic mdrun + GCNCMC',
     packages=find_packages(),
-    install_requires=["openmm"],
+    install_requires=["openmm", "openmmtools", "mdtraj", "numpy", "pandas", "scipy", "MDAnalysis", "pymbar", "tqdm"],
     python_requires='>=3.7',
     entry_points={
         'console_scripts': [
