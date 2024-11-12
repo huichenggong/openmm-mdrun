@@ -83,8 +83,6 @@ def main():
         logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
     else:
         logging.basicConfig(level=logging.INFO, format='%(message)s')
-    logging.info(f"openmm_mdrun, version {Omdrun.__version__}")
-    logging.info(f"Command line: {' '.join(sys.argv)}")
 
     # determine continue or fresh start
     continuation = check_continuation(args)
