@@ -23,8 +23,8 @@ class mdp_parser:
         self.nstpcouple = 25               # in steps
         self.surface_tension = 0.0         # in kJ/mol/nm^2
         # GCMC
-        self.ex_potential    = -25.48    * unit.kilojoule_per_mole
-        self.standard_volume = 30.345e-3 * unit.nanometer**3
+        self.ex_potential    = -26.5254     * unit.kilojoule_per_mole
+        self.standard_volume = 29.814952e-3 * unit.nanometer**3
         self.n_pert_steps = 399            # number of perturbation steps (Hamiltonian switching)
         self.n_prop_steps_per_pert = 50    # number of propagation steps per perturbation step (constant Hamiltonian, relaxation)
 
