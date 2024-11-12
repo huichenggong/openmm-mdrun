@@ -1,4 +1,3 @@
-from pathlib import Path
 import sys
 import argparse
 from copy import deepcopy
@@ -25,8 +24,12 @@ def main():
                         help="Input ghosts.dat files")
     parser.add_argument("-atom", metavar="    atom.json  ",
                         help="Input atom json file for atom selection. If provided, we will try to center the channel.")
+    parser.add_argument("-dframe", metavar="  1", type=int, default=1,
+                        help="Down sample the trajectory by dframe")
     parser.add_argument("-oxtc", metavar="    md.xtc", default="md.xtc",
                         help="Output xtc files, the ghost waters will be shifted outside the simulation cell.")
+    parser.add_argument("-pbc", metavar="     atom", default="atom", choices=["atom", "mol"],
+                        help="wrap with atom or mol. mol is very slow")
     args = parser.parse_args()
 
 
@@ -53,7 +56,6 @@ def main():
         with open(args.atom, 'r') as f:
             atom_dict = json.load(f)["ref_atoms"][0]
         selection_str = ""
-        print(atom_dict)
         if "chain" in atom_dict:
             selection_str += f"segid {atom_dict['chain']} and "
         if "resname" in atom_dict:
@@ -66,13 +68,22 @@ def main():
         selection_str = selection_str[:-4]
         center = u.select_atoms(selection_str)
         print(f"Centering the channel with {center}")
-        transforms = [trans.center_in_box(center),
-                      ]
-        u.trajectory.add_transformations(*transforms)
+    not_protein = u.select_atoms('not protein')
+    protein = u.select_atoms('protein')
+    all_atoms = u.select_atoms("name *")
 
     res_list = list(top.residues())
     with mda.Writer(args.oxtc, u.atoms.n_atoms) as xtc_writer:
-        for ts, ghosts in tqdm(zip(u.trajectory, ghost_list)):
+        for ts, ghosts in tqdm(zip(u.trajectory[::args.dframe], ghost_list[::args.dframe])):
+            if args.atom:
+                dim = ts.triclinic_dimensions
+                box_center = np.sum(dim, axis=0) / 2
+                u.atoms.translate(box_center - center.center_of_mass())
+                if args.pbc == "mol":
+                    protein.wrap(compound='segments')
+                    not_protein.wrap(compound='residues')
+                elif args.pbc == "atom":
+                    all_atoms.wrap(compound="atoms")
             z = -20
             for resid in ghosts:
                 res = res_list[resid]
