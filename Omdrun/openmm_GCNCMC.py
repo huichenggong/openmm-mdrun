@@ -51,7 +51,7 @@ def check_continuation(args):
 def main():
     time_start = time.time()
 
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description=f""""Omdrun {Omdrun.__version__}. This is the script for running GCNCMC with membrane.""")
     parser.add_argument("-sys", metavar="     sys.xml.gz  ", default="sys.xml.gz",
                         help="Serialized system file. It will be loaded as a `openmm.System` object. This system should "
                              "include all bonded/non-bonded, constraints, but not pressure coupling. It can be xml or xml.gz.")
