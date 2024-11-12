@@ -29,6 +29,7 @@ setup(
         'console_scripts': [
             'openmm_mdrun=Omdrun.openmm_mdrun:main',
             'openmm_GCNCMC=Omdrun.openmm_GCNCMC:main',
+            'remove_ghost=Omdrun.remove_ghost:main',
         ],
     },
     classifiers=['Programming Language :: Python :: 3',],
