@@ -1,11 +1,9 @@
 import argparse
 import sys
-import os
 import time
-import shutil
 from pathlib import Path
-import gzip
 import logging
+import datetime
 
 from openmm import openmm, unit, app
 
@@ -200,6 +198,7 @@ def main():
                             format='%(message)s')
     logging.info(f"openmm_mdrun, version {Omdrun.__version__}")
     logging.info(f"Command line: {' '.join(sys.argv)}")
+    logging.info(f"Time :{datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}")
 
     info_list = []
     # Determine restart situation, whether to continue or not
