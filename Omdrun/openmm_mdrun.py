@@ -217,7 +217,7 @@ def main():
 
 
     if not continuation:
-        for f_name in [args.xtc, args.e, args.g, args.cpo]:
+        for f_name in [args.xtc, args.e, args.cpo]:
             f_bak = backup_if_exist_gmx(f_name)
             if f_bak:
                 info_list.append(f"Backup {f_name} to {f_bak}")
