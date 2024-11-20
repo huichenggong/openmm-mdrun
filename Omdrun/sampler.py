@@ -120,9 +120,11 @@ class CustomGCNCMCSampler(grand.samplers.NonequilibriumGCMCSphereSampler):
         if acc_prob < np.random.rand() or np.isnan(acc_prob):
             # Need to revert the changes made if the move is to be rejected
             self.adjustSpecificWater(atom_indices, 0.0)
+
+            self.context.setPeriodicBoxVectors(*self.box_vectors)
             self.context.setPositions(old_positions)
             self.context.setVelocities(-self.velocities)  # Reverse velocities on rejection
-            self.context.setPeriodicBoxVectors(*self.box_vectors)
+
             self.positions = deepcopy(old_positions)
             self.velocities = -self.velocities
             state = self.context.getState(getPositions=True, enforcePeriodicBox=True)
@@ -205,9 +207,11 @@ class CustomGCNCMCSampler(grand.samplers.NonequilibriumGCMCSphereSampler):
         if acc_prob < np.random.rand() or np.isnan(acc_prob):
             # Need to revert the changes made if the move is to be rejected
             self.adjustSpecificWater(atom_indices, 1.0)
+
+            self.context.setPeriodicBoxVectors(*self.box_vectors)
             self.context.setPositions(old_positions)
             self.context.setVelocities(-self.velocities)  # Reverse velocities on rejection
-            self.context.setPeriodicBoxVectors(*self.box_vectors)
+
             self.positions = deepcopy(old_positions)
             self.velocities = -self.velocities
             state = self.context.getState(getPositions=True, enforcePeriodicBox=True)
